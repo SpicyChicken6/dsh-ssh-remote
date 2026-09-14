@@ -101,7 +101,7 @@ interface SshRemote {
 
 export async function apply(ctx: ClientContext) {
   const disposeMount = await ctx.remote.$mount(TYPERT_REMOTE);
-  const ui = ctx.inject(['remote.sshRemote', 'slots', 'workspaces'], (scope) => {
+  const ui = ctx.inject(['remote.sshRemote', 'slots', 'workspaces', 'uiWorkspace'], (scope) => {
     const ssh = scope.remote.sshRemote;
     // DSH moved directory navigation to uiWorkspace; older hosts expose it
     // on workspaces. Keep workspace create/rename on the data service.

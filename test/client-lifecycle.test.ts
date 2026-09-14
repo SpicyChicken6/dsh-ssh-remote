@@ -84,7 +84,7 @@ describe('client lifecycle', () => {
 
     expect(events).toEqual([
       'remote:mount',
-      'inject:remote.sshRemote,slots,workspaces',
+      'inject:remote.sshRemote,slots,workspaces,uiWorkspace',
       'register:ssh-remote',
       'register:conversation.hero.workspace.directoryFlow',
       'register:sidebar.workspaces.directoryFlow',
@@ -105,7 +105,7 @@ describe('client lifecycle', () => {
 
     expect(events).toEqual([
       'remote:mount',
-      'inject:remote.sshRemote,slots,workspaces',
+      'inject:remote.sshRemote,slots,workspaces,uiWorkspace',
       'register:ssh-remote',
       'register:conversation.hero.workspace.directoryFlow',
       'register:sidebar.workspaces.directoryFlow',

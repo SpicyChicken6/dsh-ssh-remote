@@ -39,7 +39,8 @@ export function windowsDriveAnchors(entries: ReadonlyArray<{ name: string }>): L
  */
 export function isDirectoryPickerUnavailable(reason: unknown): boolean {
   if (!(reason instanceof Error)) return false;
-  return (reason as { rpcError?: { code?: unknown } }).rpcError?.code === 'directory-picker-unavailable';
+  const code = (reason as { rpcError?: { code?: unknown } }).rpcError?.code;
+  return code === 'directory-picker-unavailable' || code === 'directory-picker/unavailable';
 }
 
 /**

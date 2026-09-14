@@ -25,7 +25,7 @@ describe('client lifecycle', () => {
     expect(TYPERT.invocations.map((entry) => entry.method)).toEqual(methods);
   });
 
-  it('mounts the Remote contribution before injecting and consuming its namespace', async () => {
+  it.each([false, true])('mounts Remote and routes directory APIs (uiWorkspace=%s)', async (modern) => {
     const events: string[] = [];
     const disposeMount = vi.fn(async () => {
       events.push('remote:dispose');
@@ -57,6 +57,11 @@ describe('client lifecycle', () => {
       },
     };
 
+    const directories = {
+      pickDirectory: vi.fn(), listDirectory: vi.fn(), createDirectory: vi.fn(),
+    };
+    Object.assign(modern ? Object.assign(childScope, { uiWorkspace: directories }).uiWorkspace : childScope.workspaces, directories);
+
     const ctx = {
       remote: {
         $mount: vi.fn(async () => {
@@ -79,17 +84,28 @@ describe('client lifecycle', () => {
 
     expect(events).toEqual([
       'remote:mount',
-      'inject:remote.sshRemote,slots,workspaces',
+      'inject:remote.sshRemote,slots,workspaces,uiWorkspace',
       'register:ssh-remote',
       'register:conversation.hero.workspace.directoryFlow',
       'register:sidebar.workspaces.directoryFlow',
     ]);
 
+    const flow = childScope.slots.register.mock.calls.find(
+      ([options]) => options.name === 'sidebar.workspaces.directoryFlow',
+    )![0] as unknown as { inject: () => any };
+    const api = flow.inject();
+    api.pickLocal();
+    api.listLocal('/tmp');
+    api.createLocalDirectory('/tmp', 'demo');
+    expect(directories.pickDirectory).toHaveBeenCalledOnce();
+    expect(directories.listDirectory).toHaveBeenCalledWith('/tmp');
+    expect(directories.createDirectory).toHaveBeenCalledWith('/tmp', 'demo');
+
     await dispose?.();
 
     expect(events).toEqual([
       'remote:mount',
-      'inject:remote.sshRemote,slots,workspaces',
+      'inject:remote.sshRemote,slots,workspaces,uiWorkspace',
       'register:ssh-remote',
       'register:conversation.hero.workspace.directoryFlow',
       'register:sidebar.workspaces.directoryFlow',

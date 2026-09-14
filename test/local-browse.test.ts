@@ -88,6 +88,7 @@ describe('isDirectoryPickerUnavailable', () => {
     expect(
       isDirectoryPickerUnavailable(browseError('directory-picker-unavailable', 'no picker')),
     ).toBe(true);
+    expect(isDirectoryPickerUnavailable(browseError('directory-picker/unavailable', 'native'))).toBe(true);
     // Non-capability browse failures can never trigger a native fallback.
     expect(isDirectoryPickerUnavailable(browseError('directory-unreadable', 'permission denied'))).toBe(false);
     expect(isDirectoryPickerUnavailable(browseError('directory-create-failed', 'read-only fs'))).toBe(false);

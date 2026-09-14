@@ -103,16 +103,21 @@ export async function apply(ctx: ClientContext) {
   const disposeMount = await ctx.remote.$mount(TYPERT_REMOTE);
   const ui = ctx.inject(['remote.sshRemote', 'slots', 'workspaces'], (scope) => {
     const ssh = scope.remote.sshRemote;
+    // DSH moved directory navigation to uiWorkspace; older hosts expose it
+    // on workspaces. Keep workspace create/rename on the data service.
+    const directories = (scope as typeof scope & {
+      uiWorkspace?: Pick<typeof scope.workspaces, 'pickDirectory' | 'listDirectory' | 'createDirectory'>;
+    }).uiWorkspace ?? scope.workspaces;
     const flowInject = () => ({
       ssh,
-      pickLocal: () => scope.workspaces.pickDirectory(),
+      pickLocal: () => directories.pickDirectory(),
       // The composed picker's browse capability (in-app listing/creation).
       // Served only when the host composes the `-browse` backend; chooseLocal
       // probes for it and falls back to the native chooser only on the
       // explicit capability-unavailable signal (`directory-picker-unavailable`).
-      listLocal: (path?: string) => scope.workspaces.listDirectory(path),
+      listLocal: (path?: string) => directories.listDirectory(path),
       createLocalDirectory: (path: string, name: string) =>
-        scope.workspaces.createDirectory(path, name),
+        directories.createDirectory(path, name),
       createWorkspace: (input: { path: string }) => scope.workspaces.create(input),
       renameWorkspace: (workspaceId: WorkspaceId, title: string) =>
         scope.workspaces.rename(workspaceId, title),
